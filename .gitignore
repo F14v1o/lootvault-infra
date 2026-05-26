@@ -1,0 +1,13 @@
+# Local terraform directories
+.terraform/
+
+# State files
+*.tfstate
+*.tfstate.backup
+
+# Variables files (if you create them later)
+*.tfvars
+*.tfvars.json
+
+# Local OS files
+.DS_Store
