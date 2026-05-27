@@ -17,6 +17,23 @@ resource "aws_instance" "game_server" {
   associate_public_ip_address = true
   vpc_security_group_ids      = [aws_security_group.web_sg.id]
   iam_instance_profile        = aws_iam_instance_profile.ec2_profile.name
+  # The automation startup payload script
+  user_data = <<EOF
+#!/bin/bash
+sudo apt-get update
+sudo apt-get install -y docker.io awscli
+sudo systemctl start docker
+sudo usermod -aG docker ubuntu
+        
+# Log the server's local Docker engine into our ECR registry
+aws ecr get-login-password --region eu-central-2 | docker login --username AWS --password-stdin ${aws_ecr_repository.lootvault_repo.repository_url}
+              
+# Pull and run our app container in the background
+docker run -d --name lootvault-running-app \
+-e DB_HOST="${aws_db_instance.postgres_db.endpoint}" \
+-e S3_BUCKET="${aws_s3_bucket.lootvault_assets.id}" \
+${aws_ecr_repository.lootvault_repo.repository_url}:latest
+EOF
   tags = {
     Name = "lootvault-game-server"
   }

@@ -61,3 +61,7 @@ resource "aws_iam_instance_profile" "ec2_profile" {
   name = "lootvault-ec2-instance-profile"
   role = aws_iam_role.ec2_lootvault_role.name
 }
+resource "aws_iam_role_policy_attachment" "attach_ecr_read" {
+  role       = aws_iam_role.ec2_lootvault_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
